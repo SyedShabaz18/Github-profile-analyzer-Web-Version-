@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Analyze public GitHub profiles, repositories, stars, forks and languages.">
+    <title>GitHub Profile Analyzer</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/assets/style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="page-shell">
+
+        <header class="topbar">
+            <a class="brand" href="/">
+                <span class="brand-mark">GH</span>
+                <span>GitHub Profile Analyzer</span>
+            </a>
+
+            <div class="topbar-right">
+                <span class="status-dot"></span>
+                <span>Public GitHub data</span>
+            </div>
+        </header>
+
+        <main>
+            <section class="hero">
+                <div class="hero-copy">
+                    <span class="eyebrow">DEVELOPER ANALYTICS</span>
+                    <h1>Understand a GitHub profile<br><span>at a glance.</span></h1>
+                    <p>
+                        Enter a public GitHub username and turn repository activity
+                        into a clean, interactive analytics dashboard.
+                    </p>
+                </div>
+
+                <form id="searchForm" class="search-card">
+                    <label for="username">GitHub username</label>
+
+                    <div class="search-row">
+                        <div class="input-wrap">
+                            <span class="input-icon">@</span>
+                            <input
+                                id="username"
+                                name="username"
+                                type="text"
+                                placeholder="e.g. octocat"
+                                autocomplete="off"
+                                required
+                            >
+                        </div>
+
+                        <button id="analyzeButton" type="submit">
+                            <span>Analyze Profile</span>
+                            <span class="button-arrow">→</span>
+                        </button>
+                    </div>
+
+                    <p class="search-hint">
+                        Only public GitHub information is analyzed.
+                    </p>
+                </form>
+            </section>
+
+            <section id="errorBox" class="alert hidden"></section>
+
+            <section id="dashboard" class="dashboard hidden">
+
+                <div class="profile-card">
+                    <div class="profile-main">
+                        <img id="avatar" class="avatar" src="" alt="GitHub profile avatar">
+
+                        <div class="profile-details">
+                            <div class="profile-name-row">
+                                <div>
+                                    <h2 id="profileName">—</h2>
+                                    <p id="profileLogin">@username</p>
+                                </div>
+                                <a id="profileLink" class="outline-button" href="#" target="_blank" rel="noopener noreferrer">
+                                    View GitHub ↗
+                                </a>
+                            </div>
+
+                            <p id="profileBio" class="bio">No bio provided.</p>
+
+                            <div class="profile-meta">
+                                <span id="locationMeta">⌖ Not provided</span>
+                                <span id="companyMeta">▣ Not provided</span>
+                                <span id="blogMeta">⌁ Not provided</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-heading">
+                    <div>
+                        <span class="section-label">OVERVIEW</span>
+                        <h2>Profile statistics</h2>
+                    </div>
+                    <button id="downloadButton" class="secondary-button">
+                        ↓ Download CSV
+                    </button>
+                </div>
+
+                <div class="stats-grid">
+                    <article class="stat-card">
+                        <div class="stat-icon">◎</div>
+                        <span>Followers</span>
+                        <strong id="followers">0</strong>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-icon">◌</div>
+                        <span>Following</span>
+                        <strong id="following">0</strong>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-icon">▤</div>
+                        <span>Repositories</span>
+                        <strong id="repoCount">0</strong>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-icon">★</div>
+                        <span>Total Stars</span>
+                        <strong id="totalStars">0</strong>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-icon">⑂</div>
+                        <span>Total Forks</span>
+                        <strong id="totalForks">0</strong>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-icon">✦</div>
+                        <span>Public Gists</span>
+                        <strong id="gists">0</strong>
+                    </article>
+                </div>
+
+                <div class="charts-grid">
+                    <article class="panel chart-panel">
+                        <div class="panel-heading">
+                            <div>
+                                <span class="section-label">TECH STACK</span>
+                                <h3>Languages used</h3>
+                            </div>
+                            <span id="languageCount" class="small-pill">0 languages</span>
+                        </div>
+                        <div class="chart-box doughnut-box">
+                            <canvas id="languageChart"></canvas>
+                        </div>
+                    </article>
+
+                    <article class="panel chart-panel">
+                        <div class="panel-heading">
+                            <div>
+                                <span class="section-label">ENGAGEMENT</span>
+                                <h3>Stars by repository</h3>
+                            </div>
+                        </div>
+                        <div class="chart-box">
+                            <canvas id="starsChart"></canvas>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="mini-stats">
+                    <div>
+                        <span>Average stars / repo</span>
+                        <strong id="averageStars">0</strong>
+                    </div>
+                    <div>
+                        <span>Average forks / repo</span>
+                        <strong id="averageForks">0</strong>
+                    </div>
+                    <div>
+                        <span>Original repositories</span>
+                        <strong id="originalRepos">0</strong>
+                    </div>
+                    <div>
+                        <span>Forked repositories</span>
+                        <strong id="forkedRepos">0</strong>
+                    </div>
+                </div>
+
+                <section class="panel repositories-panel">
+                    <div class="panel-heading repository-heading">
+                        <div>
+                            <span class="section-label">PROJECTS</span>
+                            <h3>Top repositories</h3>
+                        </div>
+
+                        <input id="repoSearch" class="repo-search" type="search" placeholder="Search repositories...">
+                    </div>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Repository</th>
+                                    <th>Language</th>
+                                    <th>Stars</th>
+                                    <th>Forks</th>
+                                    <th>Updated</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="repoTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div id="emptyRepos" class="empty-state hidden">
+                        No repositories match your search.
+                    </div>
+                </section>
+
+                <footer class="dashboard-footer">
+                    <span id="lastUpdated">—</span>
+                    <span>Built with FastAPI + GitHub REST API</span>
+                </footer>
+            </section>
+
+            <section id="welcomeSection" class="welcome-section">
+                <div class="feature">
+                    <div class="feature-icon">◉</div>
+                    <h3>Profile insights</h3>
+                    <p>Followers, repositories, gists, stars, forks and profile details.</p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">◈</div>
+                    <h3>Repository analytics</h3>
+                    <p>Explore projects, languages, stars, forks and repository activity.</p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">↗</div>
+                    <h3>Export your data</h3>
+                    <p>Download repository results as a CSV report for further analysis.</p>
+                </div>
+            </section>
+        </main>
+
+        <div id="loadingOverlay" class="loading-overlay hidden">
+            <div class="loader-card">
+                <div class="spinner"></div>
+                <strong>Analyzing GitHub profile...</strong>
+                <span>Fetching public profile and repository data</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>
